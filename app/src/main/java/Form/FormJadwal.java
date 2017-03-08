@@ -1,4 +1,4 @@
-package Form;
+package form;
 
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -19,7 +19,6 @@ import java.util.Date;
 
 import DAO.Jadwal;
 import Model.JadwalModel;
-import alarm.MyAlarm;
 import id.sacredgeeks.ethereal.ListJadwal;
 import id.sacredgeeks.ethereal.R;
 
@@ -94,9 +93,6 @@ public class FormJadwal extends AppCompatActivity {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-
-                    MyAlarm alarm = new MyAlarm();
-                    alarm.setAlarm(FormJadwal.this, date, 0);
 
                     Toast.makeText(FormJadwal.this, "Tambah Data Berhasil", Toast.LENGTH_SHORT).show();
                     onBackPressed();

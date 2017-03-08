@@ -1,7 +1,10 @@
-package Form;
+package form;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,29 +29,28 @@ import id.sacredgeeks.ethereal.ListTugas;
 import id.sacredgeeks.ethereal.R;
 
 public class FormTugas extends AppCompatActivity {
-    private long date =0;
-    EditText tugas,keterangan,tanggal,jam;
-    Button btntambah,btnhapus;
+    private long date = 0;
+    EditText tugas, keterangan, tanggal, jam, ID;
+    Button btntambah, btnhapus;
     Calendar myCalendar;
-    MyAlarm alarm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_tugas);
 
-        tugas = (EditText)findViewById(R.id.TxtTugas);
-        keterangan = (EditText)findViewById(R.id.TxtKeterangan);
-        tanggal = (EditText)findViewById(R.id.TxtTanggal);
-        jam = (EditText)findViewById(R.id.TxtJam);
+        tugas = (EditText) findViewById(R.id.TxtTugas);
+        keterangan = (EditText) findViewById(R.id.TxtKeterangan);
+        tanggal = (EditText) findViewById(R.id.TxtTanggal);
+        jam = (EditText) findViewById(R.id.TxtJam);
+        ID = (EditText)findViewById(R.id.TxtID);
 
-        alarm = new MyAlarm();
-
-        btnhapus = (Button)findViewById(R.id.btnHapus);
+        btnhapus = (Button) findViewById(R.id.btnHapus);
 
         setJam();
         setTanggal();
 
-        btntambah = (Button)findViewById(R.id.btnTambah);
+        btntambah = (Button) findViewById(R.id.btnTambah);
 
         cekListener();
         cekPK();
@@ -63,7 +65,6 @@ public class FormTugas extends AppCompatActivity {
                 String PK = i.getStringExtra("PK");
                 TugasModel model = new TugasModel(FormTugas.this);
                 model.Delete(Integer.parseInt(PK));
-                alarm.cancelAlarm(FormTugas.this, Integer.parseInt(PK));
                 Toast.makeText(FormTugas.this, "Data Berhasil Dihapus", Toast.LENGTH_SHORT).show();
                 onBackPressed();
             }
@@ -73,14 +74,14 @@ public class FormTugas extends AppCompatActivity {
     public void cekListener() {
         Intent i = getIntent();
         final String PK = i.getStringExtra("PK");
-        if(PK.equals("")) {
+        if (PK.equals("")) {
             btntambah.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     TugasModel model = new TugasModel(FormTugas.this);
                     Tugas tgs = new Tugas();
 
-                    tgs.id = null;
+                    tgs.id = ID.getText().toString();
                     tgs.tugas = tugas.getText().toString();
                     tgs.keterangan = keterangan.getText().toString();
                     tgs.tanggal = tanggal.getText().toString();
@@ -91,17 +92,14 @@ public class FormTugas extends AppCompatActivity {
                     SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 
                     try {
-                        Date mydate = df.parse(tgs.tanggal+" "+tgs.jam);
+                        Date mydate = df.parse(tgs.tanggal + " " + tgs.jam);
                         date = mydate.getTime();
                         Log.wtf("onClick: ", String.valueOf(date));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
 
-                    TugasModel tm = new TugasModel(FormTugas.this);
-                    int lastId = tm.getLastId();
-                    alarm.setAlarm(FormTugas.this, date, tm.getLastId());
-
+                    setAlarm(date, Integer.parseInt(ID.getText().toString()));
 
                     onBackPressed();
                 }
@@ -131,16 +129,18 @@ public class FormTugas extends AppCompatActivity {
         Intent intent = getIntent();
         String PK = intent.getStringExtra("PK");
 
-        if(PK.equals("")) {
+        if (PK.equals("")) {
 //            Toast.makeText(this, "Ga Ada PK nya", Toast.LENGTH_SHORT).show();
         } else {
 //            Toast.makeText(this, "Ada PK nya", Toast.LENGTH_SHORT).show();
             btntambah.setText("Ubah Tugas");
+            ID.setEnabled(false);
             btnhapus.setVisibility(View.VISIBLE);
+
             TugasModel model = new TugasModel(this);
             Tugas data = new Tugas();
             data = model.getTugasById(Integer.parseInt(PK));
-
+            ID.setText(data.id);
             tugas.setText(data.tugas);
             keterangan.setText(data.keterangan);
             tanggal.setText(data.tanggal);
@@ -204,5 +204,15 @@ public class FormTugas extends AppCompatActivity {
     public void onBackPressed() {
         Intent i = new Intent(FormTugas.this, ListTugas.class);
         startActivity(i);
+    }
+
+    private void setAlarm(long time,int id)  {
+        Intent intent = new Intent(getBaseContext(), MyAlarm.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                getBaseContext(), id, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, time,
+                pendingIntent);
+
     }
 }

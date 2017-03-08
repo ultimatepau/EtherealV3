@@ -96,34 +96,6 @@ public class TugasModel {
         return TugasList;
     }
 
-    public int getLastId() {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        String query = "SELECT * FROM "+Tugas.TABLE+" ORDER BY id DESC LIMIT 1";
-        ArrayList<HashMap<String, String>> TugasList = new ArrayList<HashMap<String, String>>();
-
-        Cursor cursor = db.rawQuery(query, null);
-
-
-        int no = 0;
-        if(cursor.moveToFirst()){
-            do {
-                no += 1;
-                HashMap<String, String> dataTugas = new HashMap<String, String>();
-                dataTugas.put(Tugas.KEY_ID,cursor.getString(cursor.getColumnIndex(Tugas.KEY_ID)));
-                dataTugas.put(Tugas.KEY_NO, String.valueOf(no));
-                dataTugas.put(Tugas.KEY_TUGAS,cursor.getString(cursor.getColumnIndex(Tugas.KEY_TUGAS)));
-                dataTugas.put(Tugas.KEY_TANGGAL,cursor.getString(cursor.getColumnIndex(Tugas.KEY_TANGGAL)));
-                dataTugas.put(Tugas.KEY_JAM,cursor.getString(cursor.getColumnIndex(Tugas.KEY_JAM)));
-                TugasList.add(dataTugas);
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
-        db.close();
-
-        return TugasList!= null ? Integer.parseInt(TugasList.get(0).get(Tugas.KEY_ID)) : 0;
-    }
-
     public Tugas getTugasById(int id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -134,6 +106,7 @@ public class TugasModel {
 
         if(cursor.moveToFirst()){
             do {
+                tugas.id = cursor.getString(cursor.getColumnIndex(Tugas.KEY_ID));
                 tugas.tugas = cursor.getString(cursor.getColumnIndex(Tugas.KEY_TUGAS));
                 tugas.keterangan = cursor.getString(cursor.getColumnIndex(Tugas.KEY_KETERANGAN));
                 tugas.tanggal= cursor.getString(cursor.getColumnIndex(Tugas.KEY_TANGGAL));

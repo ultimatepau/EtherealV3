@@ -14,7 +14,7 @@ import java.util.HashMap;
 
 import Adapter.JadwalAdapter;
 import DAO.Jadwal;
-import Form.FormJadwal;
+import form.FormJadwal;
 import Model.JadwalModel;
 
 public class ListJadwal extends AppCompatActivity {
